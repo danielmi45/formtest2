@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>טופס רישום</title>
+  <style>
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background-color: #f8f8f8;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      margin-bottom: 10px;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <form id="registration-form">
+    <label for="first-name">שם פרטי:</label>
+    <input type="text" id="first-name" name="first-name" required pattern="[א-ת\s]+" title="נא להזין תווים בעברית בלבד">
+
+    <label for="last-name">שם משפחה:</label>
+    <input type="text" id="last-name" name="last-name" required pattern="[א-ת\s]+" title="נא להזין תווים בעברית בלבד">
+
+    <label for="date-of-birth">תאריך לידה:</label>
+    <input type="date" id="date-of-birth" name="date-of-birth" required>
+
+    <label for="age">גיל:</label>
+    <input type="text" id="age" name="age" readonly>
+
+    <label for="id-card">תעודת זהות:</label>
+    <input type="text" id="id-card" name="id-card" required pattern="\d{9}" title="נא להזין 9 ספרות בלבד">
+
+    <label for="gender">מגדר:</label>
+    <select id="gender" name="gender" required>
+      <option value="">בחר מגדר</option>
+      <option value="male">זכר</option>
+      <option value="female">נקבה</option>
+      <option value="other">אחר</option>
+    </select>
+
+    <input type="submit" value="שלח">
+  </form>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
+  <script>
+    // Calculate age based on the date of birth
+    document.getElementById("date-of-birth").addEventListener("change", function() {
+      var dob = new Date(this.value);
+      var today = new Date();
+      var age = (today - dob) / (1000 * 60 * 60 * 24 * 365.25);
+      document.getElementById("age").value = age.toFixed(1);
+    });
+
+    // Generate PDF and initiate download
+    document.getElementById("registration-form").addEventListener("submit", function(e) {
+      e.preventDefault(); // Prevent form submission
+
+      // Retrieve form values
+      var firstName = document.getElementById("first-name").value;
+      var lastName = document.getElementById("last-name").value;
+      var dateOfBirth = document.getElementById("date-of-birth").value;
+      var age = document.getElementById("age").value;
+      var idCard = document.getElementById("id-card").value;
+      var gender = document.getElementById("gender").value;
+
+      // Create PDF content
+      var content = `
+        <h1>פרטי הרישום</h1>
+        <p><strong>שם פרטי:</strong> ${firstName}</p>
+        <p><strong>שם משפחה:</strong> ${lastName}</p>
+        <p><strong>תאריך לידה:</strong> ${dateOfBirth}</p>
+        <p><strong>גיל:</strong> ${age} שנים</p>
+        <p><strong>תעודת זהות:</strong> ${idCard}</p>
+        <p><strong>מגדר:</strong> ${gender}</p>
+      `;
+
+      // Convert HTML content to PDF
+      var pdf = new jsPDF({
+        orientation: "p",
+        unit: "mm",
+        format: "a4"
+      });
+
+      pdf.fromHTML(content, 10, 10, {
+        width: 190
+      });
+
+      // Download the PDF
+      pdf.save("registration.pdf");
+    });
+  </script>
+</body>
+</html>
